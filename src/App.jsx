@@ -1,13 +1,29 @@
 import React, { useState, useRef } from 'react';
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
-import { ShieldCheck, FileImage, Printer, Heart, Upload, CheckCircle2, Lock, ArrowLeft, FileText, ArrowRight, Check } from 'lucide-react';
+import {
+  ShieldCheck,
+  FileImage,
+  Printer,
+  Heart,
+  Upload,
+  CheckCircle2,
+  Lock,
+  ArrowLeft,
+  FileText,
+  ArrowRight,
+  Check,
+  ArrowUpRight,
+} from 'lucide-react';
 
 export default function App() {
   const [selectedTool, setSelectedTool] = useState(null);
   const [showDonateModal, setShowDonateModal] = useState(false);
+  const [donateTab, setDonateTab] = useState('peru'); // 'peru' | 'intl'
   const [processing, setProcessing] = useState(false);
   const [statusMsg, setStatusMsg] = useState(null);
   const fileInputRef = useRef(null);
+
+  const PAYPAL_DONATE_URL = 'https://www.paypal.com/donate/?hosted_button_id=A4YJTUMDD5JN6';
 
   // Herramienta 1: Sello de Agua Anti-Fraude
   const [wmFile, setWmFile] = useState(null);
@@ -53,9 +69,10 @@ export default function App() {
         pdfDoc = await PDFDocument.load(arrayBuffer);
       } else {
         pdfDoc = await PDFDocument.create();
-        const img = wmFile.type === 'image/png'
-          ? await pdfDoc.embedPng(arrayBuffer)
-          : await pdfDoc.embedJpg(arrayBuffer);
+        const img =
+          wmFile.type === 'image/png'
+            ? await pdfDoc.embedPng(arrayBuffer)
+            : await pdfDoc.embedJpg(arrayBuffer);
         const page = pdfDoc.addPage([img.width, img.height]);
         page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
       }
@@ -103,9 +120,10 @@ export default function App() {
 
       for (const file of images) {
         const buffer = await file.arrayBuffer();
-        const img = file.type === 'image/png'
-          ? await pdfDoc.embedPng(buffer)
-          : await pdfDoc.embedJpg(buffer);
+        const img =
+          file.type === 'image/png'
+            ? await pdfDoc.embedPng(buffer)
+            : await pdfDoc.embedJpg(buffer);
 
         const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
         const maxW = A4_WIDTH - MARGIN * 2;
@@ -144,11 +162,15 @@ export default function App() {
         ctx.filter = 'grayscale(100%) contrast(125%) brightness(105%)';
         ctx.drawImage(img, 0, 0);
 
-        canvas.toBlob(async (blob) => {
-          if (!blob) return reject(new Error('Error al procesar imagen'));
-          const buffer = await blob.arrayBuffer();
-          resolve({ buffer, width: img.width, height: img.height });
-        }, 'image/jpeg', 0.9);
+        canvas.toBlob(
+          async (blob) => {
+            if (!blob) return reject(new Error('Error al procesar imagen'));
+            const buffer = await blob.arrayBuffer();
+            resolve({ buffer, width: img.width, height: img.height });
+          },
+          'image/jpeg',
+          0.9
+        );
       };
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
@@ -180,9 +202,10 @@ export default function App() {
           const drawW = width * scale;
           const drawH = height * scale;
 
-          const yPos = i === 0
-            ? A4_HEIGHT - MARGIN - drawH
-            : A4_HEIGHT - MARGIN * 2 - slotHeight - drawH;
+          const yPos =
+            i === 0
+              ? A4_HEIGHT - MARGIN - drawH
+              : A4_HEIGHT - MARGIN * 2 - slotHeight - drawH;
 
           page.drawImage(embeddedImg, {
             x: (A4_WIDTH - drawW) / 2,
@@ -306,17 +329,23 @@ export default function App() {
             {/* Guía visual de 3 pasos */}
             <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-4 bg-white px-5 py-2.5 rounded-full border border-slate-200 text-xs sm:text-sm font-medium text-slate-700 mb-10 shadow-xs">
               <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">1</span>
+                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">
+                  1
+                </span>
                 Elige una opción abajo
               </span>
               <span className="text-slate-300">•</span>
               <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">2</span>
+                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">
+                  2
+                </span>
                 Sube tu foto o PDF
               </span>
               <span className="text-slate-300">•</span>
               <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">3</span>
+                <span className="w-5 h-5 rounded-full bg-[#E5322D] text-white text-xs flex items-center justify-center font-bold">
+                  3
+                </span>
                 Descarga tu archivo listo
               </span>
             </div>
@@ -343,12 +372,12 @@ export default function App() {
                       {tool.title}
                     </h2>
 
-                    <p className="text-sm text-slate-600 leading-relaxed mb-5">
-                      {tool.desc}
-                    </p>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-5">{tool.desc}</p>
 
                     <div className="border-t border-slate-100 pt-4 mb-6 space-y-2.5">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">¿Para qué te sirve?</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        ¿Para qué te sirve?
+                      </p>
                       {tool.bullets.map((item, idx) => (
                         <div key={idx} className="flex items-start gap-2 text-xs text-slate-600 leading-snug">
                           <Check size={15} className="text-emerald-600 shrink-0 mt-0.5" />
@@ -368,7 +397,9 @@ export default function App() {
 
             <div className="mt-10 inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-slate-200 text-xs text-slate-600 shadow-xs">
               <Lock size={14} className="text-emerald-600 shrink-0" />
-              <span><strong>Seguridad total:</strong> Nadie ve tus documentos. Todo se procesa dentro de tu propio celular o computadora.</span>
+              <span>
+                <strong>Seguridad total:</strong> Nadie ve tus documentos. Todo se procesa dentro de tu propio celular o computadora.
+              </span>
             </div>
           </div>
         ) : (
@@ -399,9 +430,9 @@ export default function App() {
                 }}
               />
 
-              {((selectedTool === 'watermark' && !wmFile) ||
-                (selectedTool === 'img2pdf' && images.length === 0) ||
-                (selectedTool === 'photocopy' && copyImages.length === 0)) ? (
+              {(selectedTool === 'watermark' && !wmFile) ||
+              (selectedTool === 'img2pdf' && images.length === 0) ||
+              (selectedTool === 'photocopy' && copyImages.length === 0) ? (
                 <div className="py-6">
                   <button
                     type="button"
@@ -411,7 +442,9 @@ export default function App() {
                     <Upload size={24} className="shrink-0" />
                     <span>{activeToolObj.btnText}</span>
                   </button>
-                  <p className="text-xs text-slate-500 mt-4">Paso 1 de 2: Busca tu foto o archivo en tu galería o carpeta</p>
+                  <p className="text-xs text-slate-500 mt-4">
+                    Paso 1 de 2: Busca tu foto o archivo en tu galería o carpeta
+                  </p>
                 </div>
               ) : (
                 <form
@@ -431,9 +464,12 @@ export default function App() {
                         <p className="text-sm font-semibold text-slate-800 truncate">
                           {selectedTool === 'watermark' && wmFile?.name}
                           {selectedTool === 'img2pdf' && `${images.length} foto(s) seleccionada(s)`}
-                          {selectedTool === 'photocopy' && `${copyImages.length} foto(s) lista(s) para fotocopia B/N`}
+                          {selectedTool === 'photocopy' &&
+                            `${copyImages.length} foto(s) lista(s) para fotocopia B/N`}
                         </p>
-                        <p className="text-xs text-emerald-600 font-medium">✓ Archivo cargado correctamente</p>
+                        <p className="text-xs text-emerald-600 font-medium">
+                          ✓ Archivo cargado correctamente
+                        </p>
                       </div>
                     </div>
                     <button
@@ -489,22 +525,81 @@ export default function App() {
         )}
       </main>
 
-      {/* Modal de Apoyo (Solo Yape) */}
+      {/* Modal de Apoyo Dual: Perú (Yape/Plin) + Internacional (PayPal QR y Enlace) */}
       {showDonateModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
             <div className="w-12 h-12 bg-red-50 text-[#E5322D] rounded-full flex items-center justify-center mx-auto">
               <Heart size={24} className="fill-[#E5322D]" />
             </div>
-            <h3 className="text-xl font-extrabold text-slate-900">Apóyanos para seguir mejorando la página</h3>
-            <p className="text-sm text-slate-600">
-              Esta herramienta es 100% gratuita y sin publicidad invasiva. Si te salvó el trámite hoy, puedes dejar un aporte voluntario desde S/ 1 o S/ 2.
-            </p>
 
-            <div className="bg-purple-50/70 border border-purple-200 rounded-xl p-5 space-y-3">
-              <p className="text-xs font-bold text-purple-800 uppercase tracking-wider">Escanea con Yape o Plin</p>
-              <img src="/qr-yape.jpeg" alt="QR Yape" className="w-48 h-48 mx-auto rounded-xl object-contain bg-white p-2 border border-purple-200 shadow-xs" />
+            <div>
+              <h3 className="text-xl font-extrabold text-slate-900">
+                Apóyanos para seguir mejorando la página
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1.5">
+                Esta herramienta es 100% gratuita y sin publicidad invasiva. Si te salvó el trámite hoy, puedes dejar un aporte voluntario.
+              </p>
             </div>
+
+            {/* Selector Perú vs Otros países */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setDonateTab('peru')}
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  donateTab === 'peru'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Perú · Yape / Plin
+              </button>
+              <button
+                type="button"
+                onClick={() => setDonateTab('intl')}
+                className={`py-2 px-3 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  donateTab === 'intl'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Otros países · PayPal
+              </button>
+            </div>
+
+            {donateTab === 'peru' ? (
+              <div className="bg-purple-50/70 border border-purple-200 rounded-xl p-5 space-y-3">
+                <p className="text-xs font-bold text-purple-800 uppercase tracking-wider">
+                  Escanea con Yape o Plin (desde S/ 1)
+                </p>
+                <img
+                  src="/qr-yape.jpeg"
+                  alt="QR Yape"
+                  className="w-44 h-44 mx-auto rounded-xl object-contain bg-white p-2 border border-purple-200 shadow-xs"
+                />
+              </div>
+            ) : (
+              <div className="bg-blue-50/60 border border-blue-200 rounded-xl p-5 space-y-3">
+                <p className="text-xs font-bold text-blue-900 uppercase tracking-wider">
+                  Aporte internacional · PayPal o Tarjeta (USD)
+                </p>
+                <img
+                  src="/paypal-qr.png"
+                  alt="QR PayPal"
+                  className="w-44 h-44 mx-auto rounded-xl object-contain bg-white p-2 border border-blue-200 shadow-xs"
+                />
+                <a
+                  href={PAYPAL_DONATE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                >
+                  <span>Abrir enlace directo de PayPal</span>
+                  <ArrowUpRight size={15} />
+                </a>
+              </div>
+            )}
 
             <button
               onClick={() => setShowDonateModal(false)}
@@ -516,8 +611,8 @@ export default function App() {
         </div>
       )}
 
-      <footer className="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500">
-        © 2026 TrámitePDF · Procesamiento local seguro en tu navegador.
+      <footer className="bg-white border-t border-slate-200 py-5 px-4 text-center text-xs text-slate-500">
+        © 2026 TrámitePDF · Un proyecto de <span className="font-bold text-slate-700">DevStore</span> · Procesamiento local seguro.
       </footer>
     </div>
   );
